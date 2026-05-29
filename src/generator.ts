@@ -127,7 +127,7 @@ production:
 
     // Type-Sync Pipeline and Dependency Resolution
     s.start('Installing dependencies via pnpm (this may take a minute)...');
-    await execa('pnpm', ['install'], { 
+    await execa('pnpm', ['install', '--ignore-scripts'], { 
       cwd: targetDir,
       env: {
         ...process.env,
