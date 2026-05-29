@@ -1,0 +1,37 @@
+# Name of your application. Used to prefix docker images and containers.
+service: api
+
+# Name of the container image.
+image: username/api
+
+# Deploy to these servers.
+servers:
+  web:
+    hosts:
+      - 192.168.0.1
+    labels:
+      role: web
+  worker:
+    hosts:
+      - 192.168.0.1
+    cmd: bundle exec solid_queue:start
+    labels:
+      role: worker
+
+# Credentials for your image registry.
+registry:
+  username: username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Inject env to all containers.
+env:
+  clear:
+    DB_HOST: 192.168.0.2
+    RAILS_LOG_TO_STDOUT: true
+  secret:
+    - RAILS_MASTER_KEY
+
+# Use a persistent volume for sqlite or active storage
+volumes:
+  - "/var/app/storage:/rails/storage"
