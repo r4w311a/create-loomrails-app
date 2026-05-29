@@ -2,10 +2,15 @@ import ky from 'ky';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-// Android Emulator maps localhost to 10.0.2.2
+import Constants from 'expo-constants';
+
 const getBaseUrl = () => {
-  if (Platform.OS === 'android') return 'http://10.0.2.2:3000';
-  return 'http://localhost:3000';
+  if (__DEV__) {
+    const debuggerHost = Constants.expoConfig?.hostUri;
+    const localhost = debuggerHost?.split(':')[0] || 'localhost';
+    return `http://${localhost}:3000`;
+  }
+  return 'https://api.yourproductiondomain.com';
 };
 
 export const api = ky.create({
