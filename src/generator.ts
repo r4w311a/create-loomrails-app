@@ -120,7 +120,13 @@ production:
 
     // Type-Sync Pipeline and Dependency Resolution
     s.start('Installing dependencies via pnpm (this may take a minute)...');
-    await execa('pnpm', ['install'], { cwd: targetDir });
+    await execa('pnpm', ['install'], { 
+      cwd: targetDir,
+      env: {
+        ...process.env,
+        PNPM_MINIMUM_RELEASE_AGE: '0'
+      }
+    });
     s.stop('Dependencies installed!');
 
     s.start('Bootstrapping Typelizer & Hey API Data Bridge...');
