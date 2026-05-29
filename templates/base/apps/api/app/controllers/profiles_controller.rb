@@ -5,7 +5,7 @@ class ProfilesController < ApplicationController
     if (user = authenticate_by_token)
       render json: { user: { id: user.id, email: user.email } }, status: :ok
     else
-      render json: { user: null }, status: :ok
+      render json: { user: nil }, status: :ok
     end
   end
 end
