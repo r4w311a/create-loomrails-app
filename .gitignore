@@ -32,3 +32,8 @@ public/assets
 .env
 .env.*
 !.env.example
+
+# Local generated test apps
+/test-*/
+/my-*/
+

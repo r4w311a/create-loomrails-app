@@ -3,6 +3,7 @@ import path from 'path';
 import { execa } from 'execa';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import crypto from 'crypto';
 
 export interface ProjectOptions {
   projectName: string;
@@ -44,6 +45,12 @@ export async function generateLoomRailsApp(options: ProjectOptions) {
     s.start('Configuring database and infrastructure...');
 
     const apiDir = path.join(targetDir, 'apps/api');
+
+    // Generate secure unique Rails master key on the fly
+    const masterKey = crypto.randomBytes(16).toString('hex');
+    const masterKeyPath = path.join(apiDir, 'config/master.key');
+    await fs.ensureDir(path.dirname(masterKeyPath));
+    await fs.writeFile(masterKeyPath, masterKey, 'utf8');
 
     // Configure Database Choice
     if (options.database === 'sqlite3') {
