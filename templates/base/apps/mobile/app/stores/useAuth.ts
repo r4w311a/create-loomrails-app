@@ -17,18 +17,22 @@ interface AuthState {
   checkSession: () => Promise<void>;
 }
 
-export const useAuth = create<AuthState>((set) => ({
+export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   isLoading: false,
   isInitialized: false,
 
   checkSession: async () => {
+    if (get().isInitialized) return;
     try {
       const token = await SecureStore.getItemAsync('jwt_token');
-      if (!token) throw new Error('No token');
+      if (!token) {
+        set({ user: null, isInitialized: true });
+        return;
+      }
       
-      const { user } = await api.get('me').json<{ user: User }>();
-      set({ user, isInitialized: true });
+      const response = await api.get('me').json<{ user: User | null }>();
+      set({ user: response.user, isInitialized: true });
     } catch {
       await SecureStore.deleteItemAsync('jwt_token');
       set({ user: null, isInitialized: true });

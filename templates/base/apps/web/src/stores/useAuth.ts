@@ -16,15 +16,16 @@ interface AuthState {
   checkSession: () => Promise<void>;
 }
 
-export const useAuth = create<AuthState>((set) => ({
+export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   isLoading: false,
   isInitialized: false,
 
   checkSession: async () => {
+    if (get().isInitialized) return;
     try {
-      const { user } = await api.get('me').json<{ user: User }>();
-      set({ user, isInitialized: true });
+      const response = await api.get('me').json<{ user: User | null }>();
+      set({ user: response.user, isInitialized: true });
     } catch {
       set({ user: null, isInitialized: true });
     }
