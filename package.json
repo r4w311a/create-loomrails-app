@@ -1,15 +1,25 @@
 {
-  "name": "loom-rails-monorepo",
+  "name": "create-loomrails-app",
   "version": "1.0.0",
-  "private": true,
+  "description": "Interactive CLI to scaffold the LoomRails monorepo starter kit.",
+  "main": "dist/index.js",
+  "bin": {
+    "create-loomrails-app": "./dist/index.js"
+  },
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test"
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "turbo": "latest"
-  },
-  "packageManager": "pnpm@9.15.4"
+  "keywords": [
+    "rails",
+    "react",
+    "react-native",
+    "expo",
+    "monorepo",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT"
 }
