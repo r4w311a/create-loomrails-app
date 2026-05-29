@@ -12,6 +12,7 @@ interface AuthState {
   isLoading: boolean;
   isInitialized: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
 }
@@ -38,6 +39,17 @@ export const useAuth = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await api.post('login', { json: { email, password } }).json<{ user: User, token: string }>();
+      await SecureStore.setItemAsync('jwt_token', response.token);
+      set({ user: response.user });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  register: async (email, password) => {
+    set({ isLoading: true });
+    try {
+      const response = await api.post('signup', { json: { email, password } }).json<{ user: User, token: string }>();
       await SecureStore.setItemAsync('jwt_token', response.token);
       set({ user: response.user });
     } finally {

@@ -16,7 +16,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isInitialized) return;
 
-    const inAuthGroup = segments[0] === 'login';
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
 
     if (!user && !inAuthGroup) {
       // Redirect to login
@@ -38,6 +38,7 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" options={{ animation: 'fade' }} />
+      <Stack.Screen name="register" options={{ animation: 'fade' }} />
       <Stack.Screen name="index" options={{ animation: 'fade' }} />
     </Stack>
   );

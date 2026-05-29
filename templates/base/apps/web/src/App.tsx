@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './stores/useAuth';
 import { LoginScreen } from './screens/LoginScreen';
+import { RegisterScreen } from './screens/RegisterScreen';
 import { DashboardScreen } from './screens/DashboardScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -42,6 +43,14 @@ function App() {
           element={
             <PublicRoute>
               <LoginScreen />
+            </PublicRoute>
+          } 
+        />
+        <Route 
+          path="/register" 
+          element={
+            <PublicRoute>
+              <RegisterScreen />
             </PublicRoute>
           } 
         />
