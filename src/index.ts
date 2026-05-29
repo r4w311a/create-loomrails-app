@@ -57,3 +57,5 @@ program
   });
 
 program.parse(process.argv);
+
+export { generateLoomRailsApp };
