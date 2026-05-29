@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useAuth } from './stores/useAuth';
+import { useAuth } from '../stores/useAuth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
