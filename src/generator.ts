@@ -28,7 +28,6 @@ export async function generateLoomRailsApp(options: ProjectOptions) {
     // If mobile is not included, we need to remove the apps/mobile directory
     if (!options.includeMobile) {
       await fs.remove(path.join(targetDir, 'apps/mobile'));
-      // Remove mobile from turbo.json and pnpm-workspace.yaml if needed
     }
 
     // Rewrite package.json name to match project
@@ -42,11 +41,82 @@ export async function generateLoomRailsApp(options: ProjectOptions) {
     s.stop('Base templates copied!');
 
     // Post-generation wiring
-    s.start('Configuring JWT Authentication and Database Bridge...');
-    // Dummy out the logic that would read the Rails SessionsController and Vite proxy config
-    // In a real scenario, we would use string replacement or AST parsing here
-    await new Promise(resolve => setTimeout(resolve, 500));
-    s.stop('Architecture wired!');
+    s.start('Configuring database and infrastructure...');
+
+    const apiDir = path.join(targetDir, 'apps/api');
+
+    // Configure Database Choice
+    if (options.database === 'sqlite3') {
+      // 1. Rewrite Gemfile
+      const gemfilePath = path.join(apiDir, 'Gemfile');
+      if (await fs.pathExists(gemfilePath)) {
+        let gemfile = await fs.readFile(gemfilePath, 'utf8');
+        gemfile = gemfile.replace(/gem "pg", "~> 1.1"/, 'gem "sqlite3", ">= 1.4"');
+        await fs.writeFile(gemfilePath, gemfile, 'utf8');
+      }
+
+      // 2. Rewrite database.yml
+      const dbYmlPath = path.join(apiDir, 'config/database.yml');
+      const sqliteConfig = `default: &default
+  adapter: sqlite3
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: storage/development.sqlite3
+
+test:
+  <<: *default
+  database: storage/test.sqlite3
+
+production:
+  <<: *default
+  database: storage/production.sqlite3
+`;
+      await fs.writeFile(dbYmlPath, sqliteConfig, 'utf8');
+    }
+
+    // Configure Kamal Choice
+    if (!options.includeKamal) {
+      await fs.remove(path.join(apiDir, 'Dockerfile'));
+      await fs.remove(path.join(apiDir, '.dockerignore'));
+      await fs.remove(path.join(apiDir, 'config/deploy.yml'));
+    }
+
+    // Configure JWT strategy depending on mobile app availability
+    if (!options.includeMobile) {
+      const sessionsCtrlPath = path.join(apiDir, 'app/controllers/sessions_controller.rb');
+      if (await fs.pathExists(sessionsCtrlPath)) {
+        let content = await fs.readFile(sessionsCtrlPath, 'utf8');
+        const targetStr = `      # Dual-Strategy: Web sets cookie, Mobile gets JSON body
+      if request.headers["X-Client-Type"] == "mobile"
+        render json: { token: token, user: { id: user.id, email: user.email } }, status: :ok
+      else
+        cookies.signed[:jwt_token] = {
+          value: token,
+          httponly: true,
+          secure: Rails.env.production?,
+          same_site: :strict,
+          expires: 24.hours.from_now
+        }
+        render json: { user: { id: user.id, email: user.email } }, status: :ok
+      end`;
+        const replacementStr = `      # Single-Strategy: Web sets secure HttpOnly cookie
+      cookies.signed[:jwt_token] = {
+        value: token,
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :strict,
+        expires: 24.hours.from_now
+      }
+      render json: { user: { id: user.id, email: user.email } }, status: :ok`;
+        content = content.replace(targetStr, replacementStr);
+        await fs.writeFile(sessionsCtrlPath, content, 'utf8');
+      }
+    }
+
+    s.stop('Database and JWT architecture wired!');
 
     // Type-Sync Pipeline and Dependency Resolution
     s.start('Installing dependencies via pnpm (this may take a minute)...');
@@ -54,8 +124,16 @@ export async function generateLoomRailsApp(options: ProjectOptions) {
     s.stop('Dependencies installed!');
 
     s.start('Bootstrapping Typelizer & Hey API Data Bridge...');
-    // We would trigger `rails typelizer:generate` here inside apps/api
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Resiliently execute bundle install and Typelizer type-sync if Ruby/bundler are present
+    try {
+      // 1. Bundle install inside apps/api
+      await execa('bundle', ['install'], { cwd: apiDir });
+      // 2. Generate TypeScript types
+      await execa('bundle', ['exec', 'rails', 'typelizer:generate'], { cwd: apiDir });
+    } catch (e) {
+      // Graceful fallback for non-Ruby systems or missing bundler
+      p.log.warn(pc.yellow('⚠️ Ruby or Bundler not fully configured locally. Typelizer type-sync skipped; pre-scaffolded types will be used.'));
+    }
     s.stop('Types perfectly synchronized!');
 
     // Initialize git
