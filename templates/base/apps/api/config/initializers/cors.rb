@@ -7,13 +7,16 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # Allow any localhost or 127.0.0.1 port for local development
-    origins %r{\Ahttps?://(localhost|127\.0\.0\.1)(:\d+)?\z}, 
-            ENV.fetch("FRONTEND_URL", "http://localhost:5173")
+    if Rails.env.development?
+      # Allow localhost, simulators, and physical devices on local network (192.168.x.x, 10.x.x.x, 172.x.x.x)
+      origins %r{\Ahttps?://(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)(:\d+)?\z}
+    else
+      origins ENV.fetch("FRONTEND_URL", "")
+    end
 
     resource "*",
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
-      credentials: true # Crucial for HttpOnly cookies
+      credentials: true
   end
 end
