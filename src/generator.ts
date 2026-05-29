@@ -26,6 +26,19 @@ export async function generateLoomRailsApp(options: ProjectOptions) {
     
     await fs.copy(templateDir, targetDir);
 
+    // Rename _gitignore to .gitignore
+    const gitignorePaths = [
+      path.join(targetDir, '_gitignore'),
+      path.join(targetDir, 'apps/api/_gitignore'),
+      path.join(targetDir, 'apps/mobile/_gitignore'),
+      path.join(targetDir, 'apps/web/_gitignore'),
+    ];
+    for (const gitignorePath of gitignorePaths) {
+      if (await fs.pathExists(gitignorePath)) {
+        await fs.rename(gitignorePath, gitignorePath.replace('_gitignore', '.gitignore'));
+      }
+    }
+
     // If mobile is not included, we need to remove the apps/mobile directory
     if (!options.includeMobile) {
       await fs.remove(path.join(targetDir, 'apps/mobile'));
