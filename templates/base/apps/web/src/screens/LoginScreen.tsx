@@ -13,8 +13,17 @@ export function LoginScreen() {
     setError('');
     try {
       await login(email, password);
-    } catch (err) {
-      setError('Invalid email or password. Try again.');
+    } catch (err: any) {
+      if (err.response) {
+        try {
+          const errorData = await err.response.json();
+          setError(errorData.error || 'Invalid email or password. Try again.');
+        } catch {
+          setError('Invalid email or password. Try again.');
+        }
+      } else {
+        setError('Invalid email or password. Try again.');
+      }
     }
   };
 

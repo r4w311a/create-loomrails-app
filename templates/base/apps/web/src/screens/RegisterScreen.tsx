@@ -13,8 +13,17 @@ export function RegisterScreen() {
     setError('');
     try {
       await register(email, password);
-    } catch (err) {
-      setError('Failed to create account. Please try again.');
+    } catch (err: any) {
+      if (err.response) {
+        try {
+          const errorData = await err.response.json();
+          setError(errorData.error || 'Failed to create account. Please try again.');
+        } catch {
+          setError('Failed to create account. Please try again.');
+        }
+      } else {
+        setError('Failed to create account. Please try again.');
+      }
     }
   };
 

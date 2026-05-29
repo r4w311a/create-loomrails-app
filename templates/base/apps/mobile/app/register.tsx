@@ -16,8 +16,17 @@ export default function RegisterScreen() {
     setError('');
     try {
       await register(email, password);
-    } catch (e) {
-      setError('Failed to create account.');
+    } catch (e: any) {
+      if (e.response) {
+        try {
+          const errorData = await e.response.json();
+          setError(errorData.error || 'Failed to create account.');
+        } catch {
+          setError('Failed to create account.');
+        }
+      } else {
+        setError('Failed to create account.');
+      }
     }
   };
 

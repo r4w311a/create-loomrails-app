@@ -14,8 +14,17 @@ export default function LoginScreen() {
     setError('');
     try {
       await login(email, password);
-    } catch (e) {
-      setError('Invalid credentials');
+    } catch (e: any) {
+      if (e.response) {
+        try {
+          const errorData = await e.response.json();
+          setError(errorData.error || 'Invalid credentials');
+        } catch {
+          setError('Invalid credentials');
+        }
+      } else {
+        setError('Invalid credentials');
+      }
     }
   };
 
