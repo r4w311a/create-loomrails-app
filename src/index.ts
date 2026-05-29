@@ -20,7 +20,7 @@ program
             message: 'What is your project named?',
             initialValue: projectNameArgs || 'my-loomrails-app',
             validate: (value) => {
-              if (value.trim().length === 0) return 'Project name is required!';
+              if (!value || value.trim().length === 0) return 'Project name is required!';
             },
           }),
         includeMobile: () =>
