@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "bundle exec rails server -p 3000",
+    "dev": "bundle exec rails server -b 0.0.0.0 -p 3000",
     "build": "echo 'No build step required for Rails API'",
     "lint": "bundle exec rubocop"
   }
