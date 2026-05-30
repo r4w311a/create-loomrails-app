@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { getCurrentUser, login as apiLogin, signup as apiSignup, logout as apiLogout, User } from '@loomrails/types';
+import { getCurrentUser, login as apiLogin, signup as apiSignup, logout as apiLogout } from '@loomrails/types';
+import type { User } from '@loomrails/types';
 
 interface AuthState {
   user: User | null;
