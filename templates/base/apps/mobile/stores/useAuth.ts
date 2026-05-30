@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
-import { api } from '../lib/api';
-
-export interface User {
-  id: string;
-  email: string;
-}
+import { getCurrentUser, login as apiLogin, signup as apiSignup, logout as apiLogout, User } from '@loomrails/types';
 
 interface AuthState {
   user: User | null;
@@ -31,8 +26,13 @@ export const useAuth = create<AuthState>((set, get) => ({
         return;
       }
       
-      const response = await api.get('me').json<{ user: User | null }>();
-      set({ user: response.user, isInitialized: true });
+      const { data, error } = await getCurrentUser();
+      if (error || !data) {
+        await SecureStore.deleteItemAsync('jwt_token');
+        set({ user: null, isInitialized: true });
+        return;
+      }
+      set({ user: data.user, isInitialized: true });
     } catch {
       await SecureStore.deleteItemAsync('jwt_token');
       set({ user: null, isInitialized: true });
@@ -42,9 +42,16 @@ export const useAuth = create<AuthState>((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true });
     try {
-      const response = await api.post('login', { json: { email, password } }).json<{ user: User, token: string }>();
-      await SecureStore.setItemAsync('jwt_token', response.token);
-      set({ user: response.user });
+      const { data, error } = await apiLogin({ body: { email, password } });
+      if (error) {
+        throw error;
+      }
+      if (data && data.token) {
+        await SecureStore.setItemAsync('jwt_token', data.token);
+        set({ user: data.user });
+      } else {
+        throw new Error('Authentication failed');
+      }
     } finally {
       set({ isLoading: false });
     }
@@ -53,9 +60,16 @@ export const useAuth = create<AuthState>((set, get) => ({
   register: async (email, password) => {
     set({ isLoading: true });
     try {
-      const response = await api.post('signup', { json: { email, password } }).json<{ user: User, token: string }>();
-      await SecureStore.setItemAsync('jwt_token', response.token);
-      set({ user: response.user });
+      const { data, error } = await apiSignup({ body: { email, password } });
+      if (error) {
+        throw error;
+      }
+      if (data && data.token) {
+        await SecureStore.setItemAsync('jwt_token', data.token);
+        set({ user: data.user });
+      } else {
+        throw new Error('Registration failed');
+      }
     } finally {
       set({ isLoading: false });
     }
@@ -63,7 +77,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await api.delete('logout');
+      await apiLogout();
     } finally {
       await SecureStore.deleteItemAsync('jwt_token');
       set({ user: null });

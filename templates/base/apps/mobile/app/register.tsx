@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useAuth } from '../stores/useAuth';
-import { Link } from 'react-router-dom';
-// expo-router Link
 import { Link as ExpoLink } from 'expo-router';
 
 export default function RegisterScreen() {

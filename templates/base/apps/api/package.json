@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "bundle exec rails server -b 0.0.0.0 -p 3000",
     "build": "echo 'No build step required for Rails API'",
-    "lint": "bundle exec rubocop"
+    "lint": "bundle exec rubocop",
+    "openapi:generate": "bundle exec rails openapi:generate",
+    "test": "bundle exec rails test"
   }
 }

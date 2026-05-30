@@ -10,9 +10,15 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "generate": "openapi-ts"
+  },
+  "dependencies": {
+    "@hey-api/client-fetch": "0.13.1"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@hey-api/openapi-ts": "0.97.3",
+    "@tanstack/react-query": "5.100.14",
+    "typescript": "^5.9.3"
   }
 }

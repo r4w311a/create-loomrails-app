@@ -1,7 +1,9 @@
-import ky from 'ky';
+import { client } from '@loomrails/types';
 
-export const api = ky.create({
-  prefixUrl: 'http://localhost:3000',
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1';
+
+client.setConfig({
+  baseUrl: apiBaseUrl,
   credentials: 'include', // Automatically sends HttpOnly cookies
   headers: {
     'X-Client-Type': 'web',
@@ -9,3 +11,5 @@ export const api = ky.create({
     'Content-Type': 'application/json',
   },
 });
+
+export { client as api };

@@ -20,7 +20,7 @@ module Authentication
     return nil if token.blank?
 
     begin
-      payload = JWT.decode(token, Rails.application.credentials.secret_key_base || "fallback_secret", true, { algorithm: "HS256" }).first
+      payload = JWT.decode(token, jwt_secret, true, { algorithm: "HS256" }).first
       User.find_by(id: payload["user_id"])
     rescue JWT::DecodeError
       nil
@@ -40,6 +40,10 @@ module Authentication
 
   def issue_token(user)
     payload = { user_id: user.id, exp: 24.hours.from_now.to_i }
-    JWT.encode(payload, Rails.application.credentials.secret_key_base || "fallback_secret", "HS256")
+    JWT.encode(payload, jwt_secret, "HS256")
+  end
+
+  def jwt_secret
+    Rails.application.credentials.secret_key_base.presence || Rails.application.secret_key_base
   end
 end

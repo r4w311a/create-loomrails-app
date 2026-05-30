@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../stores/useAuth';
 import { Link } from 'react-router-dom';
+import { getApiErrorMessage } from '../lib/errors';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -13,17 +14,8 @@ export function LoginScreen() {
     setError('');
     try {
       await login(email, password);
-    } catch (err: any) {
-      if (err.response) {
-        try {
-          const errorData = await err.response.json();
-          setError(errorData.error || 'Invalid email or password. Try again.');
-        } catch {
-          setError('Invalid email or password. Try again.');
-        }
-      } else {
-        setError('Invalid email or password. Try again.');
-      }
+    } catch (err: unknown) {
+      setError(await getApiErrorMessage(err, 'Invalid email or password. Try again.'));
     }
   };
 

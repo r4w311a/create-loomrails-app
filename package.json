@@ -1,16 +1,28 @@
 {
   "name": "create-loomrails-app",
   "version": "1.0.0",
-  "description": "Interactive CLI to scaffold the LoomRails monorepo starter kit.",
+  "description": "Interactive and scriptable CLI to scaffold a Rails API, Vite React, and optional Expo monorepo.",
   "main": "dist/index.js",
   "bin": {
-    "create-loomrails-app": "./dist/index.js"
+    "create-loomrails-app": "./dist/index.js",
+    "loom": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "scripts": {
     "build": "tsup",
+    "clean:template-artifacts": "node scripts/clean-template-artifacts.mjs",
     "dev": "tsup --watch",
+    "prepack": "pnpm run clean:template-artifacts && pnpm run build",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
+    "test:scaffold": "tsup src/test-runner.ts --format cjs --tsconfig tsconfig.build.json --out-dir dist-test --clean && node dist-test/test-runner.js",
+    "test": "pnpm run typecheck && pnpm run build && pnpm run test:scaffold"
   },
   "keywords": [
     "rails",
@@ -20,8 +32,20 @@
     "monorepo",
     "cli"
   ],
-  "author": "",
+  "author": "Hussein Malkawi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r4w311a/create-loomrails-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/r4w311a/create-loomrails-app/issues"
+  },
+  "homepage": "https://github.com/r4w311a/create-loomrails-app#readme",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.0.0"
+  },
   "dependencies": {
     "@clack/prompts": "^1.4.0",
     "commander": "^14.0.3",

@@ -1,5 +1,5 @@
 class ProfilesController < ApplicationController
-  skip_before_action :authenticate, only: [:show]
+  skip_before_action :authenticate, only: :show
 
   def show
     if (user = authenticate_by_token)

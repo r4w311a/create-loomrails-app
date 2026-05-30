@@ -2,7 +2,10 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useAuth } from '../stores/useAuth';
 import { View, ActivityIndicator } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '../global.css';
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const { checkSession, isInitialized, user } = useAuth();
@@ -36,10 +39,12 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" options={{ animation: 'fade' }} />
-      <Stack.Screen name="register" options={{ animation: 'fade' }} />
-      <Stack.Screen name="index" options={{ animation: 'fade' }} />
-    </Stack>
+    <QueryClientProvider client={queryClient}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="login" options={{ animation: 'fade' }} />
+        <Stack.Screen name="register" options={{ animation: 'fade' }} />
+        <Stack.Screen name="index" options={{ animation: 'fade' }} />
+      </Stack>
+    </QueryClientProvider>
   );
 }

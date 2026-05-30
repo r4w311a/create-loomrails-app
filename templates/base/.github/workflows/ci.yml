@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  rails:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: api_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    defaults:
+      run:
+        working-directory: apps/api
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/api_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: apps/api/.ruby-version
+          bundler-cache: true
+          working-directory: apps/api
+
+      - name: Check autoloading
+        run: bundle exec rails zeitwerk:check
+
+      - name: Lint Rails
+        run: bundle exec rubocop -f github
+
+      - name: Scan Rails security
+        run: bundle exec brakeman --no-pager
+
+      - name: Test Rails
+        run: bundle exec rails db:test:prepare test
+
+  javascript:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate API client from checked-in OpenAPI contract
+        run: pnpm api:client
+
+      - name: Lint JavaScript
+        run: pnpm --filter web lint
+
+      - name: Build JavaScript packages
+        run: pnpm build

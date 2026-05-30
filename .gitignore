@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # Dependency directories
 node_modules/
+.pnpm-store/
 
 # OS metadata
 .DS_Store
@@ -19,6 +20,7 @@ Thumbs.db
 
 # Build outputs
 dist
+dist-test
 build
 public/assets
 
@@ -36,4 +38,3 @@ public/assets
 # Local generated test apps
 /test-*/
 /my-*/
-

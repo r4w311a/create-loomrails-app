@@ -10,11 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@loomrails/types": "workspace:*",
+    "@tanstack/react-query": "5.100.14",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.1.1",
-    "zustand": "^5.0.3",
-    "ky": "^1.7.5"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
