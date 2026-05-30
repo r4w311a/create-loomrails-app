@@ -321,10 +321,11 @@ end
     s.start('Bootstrapping Rails OpenAPI and typed client bridge...');
     try {
       await execa('bundle', ['install'], { cwd: apiDir });
+      await execa('bundle', ['exec', 'rails', 'db:prepare'], { cwd: apiDir });
       await execa('bundle', ['exec', 'rails', 'typelizer:generate'], { cwd: apiDir });
       await execa('bundle', ['exec', 'rails', 'openapi:generate'], { cwd: apiDir });
-    } catch {
-      s.warn('Ruby or Bundler is not fully configured. Rails type/OpenAPI generation was skipped.');
+    } catch (e) {
+      s.warn('Database connection failed or Ruby is not configured. Rails OpenAPI generation was skipped.');
     }
 
     try {
