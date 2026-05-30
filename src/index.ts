@@ -130,7 +130,7 @@ async function resolveProject(projectNameArg: string | undefined, options: CliOp
 program
   .name('create-loomrails-app')
   .description('Interactive and scriptable CLI to scaffold a LoomRails monorepo.')
-  .version('1.0.5')
+  .version('1.0.2')
   .argument('[project-name]', 'The name of your new LoomRails project');
 
 program
