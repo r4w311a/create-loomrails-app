@@ -217,10 +217,10 @@ production:
     const dbYmlPath = path.join(apiDir, 'config/database.yml');
     if (await fs.pathExists(dbYmlPath)) {
       let dbYml = await fs.readFile(dbYmlPath, 'utf8');
-      dbYml = dbYml.replace(/#username: api/, `username: <%= ENV.fetch("POSTGRES_USER", "${dbUser || 'postgres'}") %>`);
-      dbYml = dbYml.replace(/#password:/, `password: <%= ENV.fetch("POSTGRES_PASSWORD", "${dbPassword || 'postgres'}") %>`);
-      dbYml = dbYml.replace(/#host: localhost/, `host: <%= ENV.fetch("POSTGRES_HOST", "localhost") %>`);
-      dbYml = dbYml.replace(/#port: 5432/, `port: <%= ENV.fetch("POSTGRES_PORT", "${dbPort || '5432'}") %>`);
+      dbYml = dbYml.replace(/username: <%= ENV\.fetch\("DB_USERNAME", "postgres"\) %>/, `username: <%= ENV.fetch("DB_USERNAME", "${dbUser || 'postgres'}") %>`);
+      dbYml = dbYml.replace(/password: <%= ENV\.fetch\("DB_PASSWORD", ""\) %>/, `password: <%= ENV.fetch("DB_PASSWORD", "${dbPassword || ''}") %>`);
+      dbYml = dbYml.replace(/host: <%= ENV\.fetch\("DB_HOST", "localhost"\) %>/, `host: <%= ENV.fetch("DB_HOST", "localhost") %>`);
+      dbYml = dbYml.replace(/port: <%= ENV\.fetch\("DB_PORT", "5432"\) %>/, `port: <%= ENV.fetch("DB_PORT", "${dbPort || '5432'}") %>`);
       
       const dbPrefix = projectName.replace(/-/g, '_');
       dbYml = dbYml.replace(/database: api_development/g, `database: ${dbPrefix}_development`);
