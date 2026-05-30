@@ -221,7 +221,22 @@ production:
       dbYml = dbYml.replace(/#password:/, `password: <%= ENV.fetch("POSTGRES_PASSWORD", "${dbPassword || 'postgres'}") %>`);
       dbYml = dbYml.replace(/#host: localhost/, `host: <%= ENV.fetch("POSTGRES_HOST", "localhost") %>`);
       dbYml = dbYml.replace(/#port: 5432/, `port: <%= ENV.fetch("POSTGRES_PORT", "${dbPort || '5432'}") %>`);
+      
+      const dbPrefix = projectName.replace(/-/g, '_');
+      dbYml = dbYml.replace(/database: api_development/g, `database: ${dbPrefix}_development`);
+      dbYml = dbYml.replace(/database: api_test/g, `database: ${dbPrefix}_test`);
+      dbYml = dbYml.replace(/database: api_production/g, `database: ${dbPrefix}_production`);
+      
       await fs.writeFile(dbYmlPath, dbYml, 'utf8');
+    }
+    
+    const ciPath = path.join(targetDir, '.github/workflows/ci.yml');
+    if (await fs.pathExists(ciPath)) {
+      let ci = await fs.readFile(ciPath, 'utf8');
+      const dbPrefix = projectName.replace(/-/g, '_');
+      ci = ci.replace(/POSTGRES_DB: api_test/g, `POSTGRES_DB: ${dbPrefix}_test`);
+      ci = ci.replace(/api_test/g, `${dbPrefix}_test`);
+      await fs.writeFile(ciPath, ci, 'utf8');
     }
   }
 
