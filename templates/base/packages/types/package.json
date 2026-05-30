@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "generate": "openapi-ts"
+    "generate": "openapi-ts && tsc"
   },
   "dependencies": {
     "@hey-api/client-fetch": "0.13.1"
