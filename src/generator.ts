@@ -289,30 +289,21 @@ production:
     }
   }
 
-  const migrationsDir = path.join(apiDir, 'db/migrate');
-  if (await fs.pathExists(migrationsDir)) {
-    const files = await fs.readdir(migrationsDir);
-    const now = new Date();
-    const baseTimestamp =
-      now.getUTCFullYear().toString() +
-      (now.getUTCMonth() + 1).toString().padStart(2, '0') +
-      now.getUTCDate().toString().padStart(2, '0') +
-      now.getUTCHours().toString().padStart(2, '0') +
-      now.getUTCMinutes().toString().padStart(2, '0') +
-      now.getUTCSeconds().toString().padStart(2, '0');
-    
-    files.sort();
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const match = file.match(/^\\d+_(.+)$/);
-      if (match) {
-        const timestamp = (BigInt(baseTimestamp) + BigInt(i)).toString();
-        const newName = `${timestamp}_${match[1]}`;
-        await fs.rename(path.join(migrationsDir, file), path.join(migrationsDir, newName));
-      }
-    }
-  }
+  const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+  const migrationContent = `class CreateUsers < ActiveRecord::Migration[8.0]
+  def change
+    create_table :users do |t|
+      t.string :email, null: false
+      t.string :password_digest, null: false
+
+      t.timestamps
+    end
+    add_index :users, :email, unique: true
+  end
+end
+`;
+  await fs.ensureDir(path.join(apiDir, 'db/migrate'));
+  await fs.writeFile(path.join(apiDir, `db/migrate/${timestamp}_create_users.rb`), migrationContent, 'utf8');
 
   s.stop('Database and JWT architecture wired!');
 
