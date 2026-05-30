@@ -1,6 +1,6 @@
 {
   "name": "create-loomrails-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Interactive and scriptable CLI to scaffold a Rails API, Vite React, and optional Expo monorepo.",
   "main": "dist/index.js",
   "bin": {

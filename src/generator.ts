@@ -289,6 +289,31 @@ production:
     }
   }
 
+  const migrationsDir = path.join(apiDir, 'db/migrate');
+  if (await fs.pathExists(migrationsDir)) {
+    const files = await fs.readdir(migrationsDir);
+    const now = new Date();
+    const baseTimestamp =
+      now.getUTCFullYear().toString() +
+      (now.getUTCMonth() + 1).toString().padStart(2, '0') +
+      now.getUTCDate().toString().padStart(2, '0') +
+      now.getUTCHours().toString().padStart(2, '0') +
+      now.getUTCMinutes().toString().padStart(2, '0') +
+      now.getUTCSeconds().toString().padStart(2, '0');
+    
+    files.sort();
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const match = file.match(/^\\d+_(.+)$/);
+      if (match) {
+        const timestamp = (BigInt(baseTimestamp) + BigInt(i)).toString();
+        const newName = `${timestamp}_${match[1]}`;
+        await fs.rename(path.join(migrationsDir, file), path.join(migrationsDir, newName));
+      }
+    }
+  }
+
   s.stop('Database and JWT architecture wired!');
 
   if (installDependencies) {
